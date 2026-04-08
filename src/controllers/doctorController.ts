@@ -1,69 +1,91 @@
 import { Request, Response } from 'express';
 import pool from '../config/db';
 
-export const createOrUpdateDoctorProfile = async (req: Request, res: Response) => {
+/**
+ * Unified controller to Create or Update Doctor Profile
+ * Perfectly aligned with the Flutter 3-object JSON structure
+ */
+export const upsertDoctorProfile = async (req: Request, res: Response) => {
     try {
-        const { contactDetails, username, role, speciality, personalInfo, clinicDetails, workingHours } = req.body;
+        const {
+            doctorId,
+            personalInfo,
+            contactDetails,
+            clinicDetails
+        } = req.body;
 
-        if (!contactDetails || !contactDetails.emailAddress) {
-            return res.status(400).json({ error: 'Email address is required in contactDetails' });
+        if (!doctorId) {
+            return res.status(400).json({ error: 'doctorId is required.' });
         }
 
-        const email = contactDetails.emailAddress;
-
-        // Use PostgreSQL upsert (ON CONFLICT) to create or update the doctor profile
         const upsertQuery = `
-            INSERT INTO "Doctor" (email, username, role, speciality, "personalInfo", "contactDetails", "clinicDetails", "workingHours")
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-            ON CONFLICT (email)
+            INSERT INTO "DoctorProfile" (
+                "doctorId", "personalInfo", "contactDetails", "clinicDetails", "updatedAt"
+            )
+            VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
+            ON CONFLICT ("doctorId") 
             DO UPDATE SET
-                username = EXCLUDED.username,
-                role = EXCLUDED.role,
-                speciality = EXCLUDED.speciality,
                 "personalInfo" = EXCLUDED."personalInfo",
                 "contactDetails" = EXCLUDED."contactDetails",
                 "clinicDetails" = EXCLUDED."clinicDetails",
-                "workingHours" = EXCLUDED."workingHours",
-                "updatedAt" = CURRENT_TIMESTAMP
+                "updatedAt" = EXCLUDED."updatedAt"
             RETURNING *;
         `;
 
         const values = [
-            email,
-            username,
-            role || 'doctor',
-            speciality,
+            doctorId,
             personalInfo,
             contactDetails,
-            clinicDetails,
-            workingHours
+            clinicDetails
         ];
 
         const result = await pool.query(upsertQuery, values);
-        
-        res.status(200).json(result.rows[0]);
-    } catch (error) {
-        console.error('Error in createOrUpdateDoctorProfile:', error);
-        res.status(500).json({ error: 'Failed to create or update doctor profile' });
+        const row = result.rows[0];
+
+        res.status(200).json({
+            success: true,
+            message: 'Profile updated successfully',
+            data: row
+        });
+    } catch (error: any) {
+        console.error('Error in upsertDoctorProfile:', error);
+        res.status(500).json({ 
+            error: 'Failed to create or update doctor profile',
+            details: error.message
+        });
     }
 };
 
+// Alias for backward compatibility
+export const createOrUpdateDoctorProfile = upsertDoctorProfile;
+
+/**
+ * Unified controller to Fetch Doctor Profile
+ */
 export const getDoctorProfile = async (req: Request, res: Response) => {
     try {
-        const { email } = req.query;
-        if (!email || typeof email !== 'string') {
-            return res.status(400).json({ error: 'Email query parameter is required' });
+        // Fetch by doctorId from params or query
+        const doctorId = req.params.doctorId || req.query.doctorId;
+
+        if (!doctorId) {
+            return res.status(400).json({ error: 'doctorId is required' });
         }
 
-        const result = await pool.query('SELECT * FROM "Doctor" WHERE email = $1', [email]);
+        const result = await pool.query('SELECT * FROM "DoctorProfile" WHERE "doctorId" = $1', [doctorId]);
 
         if (result.rows.length === 0) {
-            return res.status(404).json({ error: 'Doctor not found' });
+            return res.status(404).json({ error: 'Doctor profile not found' });
         }
 
-        res.status(200).json(result.rows[0]);
-    } catch (error) {
+        res.status(200).json({
+            success: true,
+            data: result.rows[0]
+        });
+    } catch (error: any) {
         console.error('Error in getDoctorProfile:', error);
-        res.status(500).json({ error: 'Failed to fetch doctor profile' });
+        res.status(500).json({ 
+            error: 'Failed to fetch doctor profile',
+            details: error.message
+        });
     }
 };

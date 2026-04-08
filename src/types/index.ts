@@ -9,26 +9,37 @@ export interface User {
     updatedAt: Date;
 }
 
-export interface Doctor {
-    id: number;
-    email: string;
-    username: string;
-    role: string;
-    speciality: string;
+export interface DoctorProfile {
+    doctorId: number;
     personalInfo: any;
     contactDetails: any;
     clinicDetails: any;
-    workingHours: any;
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt?: Date;
+    updatedAt: Date | string;
 }
 
-export interface DoctorProfile {
-    doctorId: number;
-    experienceYears: number;
-    email: string;
-    clinicAddress: string;
-    consultationFee: number;
-    updatedAt: string;
+export interface Appointment {
+    id: string;
+    doctor_id: number;
+    patient_name: string;
+    phone: string;
+    time: string;
+    date: Date | string;
+    diagnosis?: string;
+    status: string;
+    patient_data: any;
+    createdAt?: Date;
+    updatedAt?: Date;
+}
+
+export interface EmergencyAppointment {
+    id: string;
+    doctor_id: number;
+    patient_name: string;
+    time: string;
+    diagnosis: string;
+    severity: string;
+    status: string;
+    createdAt?: Date;
 }
 

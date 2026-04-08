@@ -4,26 +4,12 @@ const initDB = async () => {
     const client = await pool.connect();
     try {
         await client.query(`
-            CREATE TABLE IF NOT EXISTS "Doctor" (
-                id SERIAL PRIMARY KEY,
-                email VARCHAR(255) UNIQUE NOT NULL,
-                username VARCHAR(255) NOT NULL,
-                role VARCHAR(50) DEFAULT 'doctor',
-                speciality VARCHAR(255) NOT NULL,
-                "personalInfo" JSONB NOT NULL,
-                "contactDetails" JSONB NOT NULL,
-                "clinicDetails" JSONB NOT NULL,
-                "workingHours" JSONB NOT NULL,
-                "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-
             CREATE TABLE IF NOT EXISTS "DoctorProfile" (
                 "doctorId" INTEGER PRIMARY KEY REFERENCES "User"(id) ON DELETE CASCADE,
-                "experienceYears" INTEGER,
-                email VARCHAR(255),
-                "clinicAddress" TEXT,
-                "consultationFee" INTEGER,
+                "personalInfo" JSONB,
+                "contactDetails" JSONB,
+                "clinicDetails" JSONB,
+                "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
@@ -36,6 +22,22 @@ const initDB = async () => {
                 role VARCHAR(50) DEFAULT 'user',
                 speciality VARCHAR(255),
                 "phoneNumber" VARCHAR(20) UNIQUE,
+                "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE TABLE IF NOT EXISTS "Appointment" (
+                id VARCHAR(50) PRIMARY KEY,
+                "doctor_id" INTEGER REFERENCES "User"(id) ON DELETE CASCADE,
+                "patient_name" VARCHAR(255) NOT NULL,
+                phone VARCHAR(20),
+                time VARCHAR(20) NOT NULL,
+                date DATE,
+                diagnosis TEXT,
+                severity VARCHAR(50),
+                status VARCHAR(50) DEFAULT 'Scheduled',
+                "is_emergency" BOOLEAN DEFAULT FALSE,
+                "patient_data" JSONB,
                 "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );

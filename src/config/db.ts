@@ -6,6 +6,7 @@ dotenv.config();
 // Ensure the connection string works with pg (it might need SSL options in prod, but local is fine)
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
+    ssl: process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : false,
 });
 
 export const connectDB = async () => {

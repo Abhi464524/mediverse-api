@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { upsertDoctorProfile, getDoctorProfile } from '../controllers/doctorProfileController';
+import { upsertDoctorProfile, getDoctorProfile } from '../controllers/doctorController';
 
 const router = Router();
 
