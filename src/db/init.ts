@@ -41,6 +41,25 @@ const initDB = async () => {
                 "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
+
+            CREATE TABLE IF NOT EXISTS "digital_prescriptions" (
+                id VARCHAR(50) PRIMARY KEY,
+                doctor_id INTEGER REFERENCES "User"(id) ON DELETE SET NULL,
+                patient_id INTEGER,
+                appointment_id VARCHAR(50) REFERENCES "Appointment"(id) ON DELETE SET NULL,
+                patient_name VARCHAR(255) NOT NULL,
+                age INTEGER,
+                gender VARCHAR(20),
+                symptoms TEXT,
+                diagnosis TEXT,
+                medicines TEXT,
+                notes TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE INDEX IF NOT EXISTS "idx_digital_prescriptions_patient_id" ON "digital_prescriptions" (patient_id);
+            CREATE INDEX IF NOT EXISTS "idx_digital_prescriptions_appointment_id" ON "digital_prescriptions" (appointment_id);
         `);
 
         console.log('✅ Database tables initialized successfully');

@@ -9,6 +9,7 @@ import doctorRoutes from './routes/doctors';
 import userRoutes from './routes/user';
 import doctorProfileRoutes from './routes/doctorProfile';
 import appointmentRoutes from './routes/appointmentRoutes';
+import prescriptionRoutes from './routes/prescriptionRoutes';
 
 // Load environment variables once at the start
 dotenv.config();
@@ -35,6 +36,7 @@ app.use('/api/doctors', doctorRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/doctor-profile', doctorProfileRoutes);
 app.use('/api/doctor', appointmentRoutes);
+app.use('/api/v1/prescriptions', prescriptionRoutes);
 
 app.get('/health', (req: Request, res: Response) => {
     res.status(200).json({ status: 'OK', message: 'Mediverse Backend is running' });
